@@ -57,9 +57,15 @@ GET /cohorts/:id/progress
 → Returns: { total, still_matching, diverged, progress_percent }
 ```
 
-## Agent Assignment (Capacity-Weighted)
+## Agent Assignment
 
 `POST /cohorts/:cohort_id/assign` → `CohortAssignmentService.assign()`
+
+**Body:** `{ agent_ids: string[], strategy?: "round_robin" | "capacity_weighted" }`
+
+### Strategies
+- **`round_robin`** (default) — equal split: `lead[i] → agent[i % count]`
+- **`capacity_weighted`** — proportional to `Agent.daily_capacity`: `agent_share = (capacity / total_capacity) * total_leads`
 
 ### Flow
 ```
@@ -81,11 +87,12 @@ Find all leads by pii_ids
     │          │
     └────┬─────┘
          │
-  Fetch agent capacities (get_agent_capacity per agent)
-         │
-  Weighted distribution:
-    agent_share = (agent_capacity / total_capacity) * total_leads
-    Remainder-based rounding for exact total
+  Strategy?
+  ┌──────┴──────┐
+  round_robin   capacity_weighted
+  │             │
+  i % count     fetch capacities →
+                proportional share
          │
   For each lead → leads_service.assign_lead()
     (full cascade: close old pipeline, create new, trigger tasks)
