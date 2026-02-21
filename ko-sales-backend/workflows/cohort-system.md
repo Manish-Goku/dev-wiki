@@ -1,16 +1,16 @@
 ---
 workflow: Cohort System
-status: wip
+status: active
 last_worked: 2026-02-21
-tags: [#wip, #event-driven, #rule-engine, #needs-discussion]
-models: [cohort, lead, contact, customer]
-modules: [cohorts, leads, contacts, customers]
+tags: [#active, #event-driven, #rule-engine, #bullmq]
+models: [cohort, cohort-assignment-job, lead, contact, customer, agent]
+modules: [cohorts, leads, contacts, customers, agents]
 created: 2026-02-21
 ---
 
 # Cohort System
 
-Rule-based segmentation with hybrid evaluation engine.
+Rule-based segmentation with hybrid evaluation engine + bulk agent assignment.
 
 ## Create Flow
 ```
@@ -57,7 +57,63 @@ GET /cohorts/:id/progress
 → Returns: { total, still_matching, diverged, progress_percent }
 ```
 
-## Pending: Agent Assignment
-- Distribution: round-robin, weighted, state-based, manual
-- Execution: optimized bulk (batch pipeline close/create)
-- Status: `#needs-discussion`
+## Agent Assignment (Capacity-Weighted)
+
+`POST /cohorts/:cohort_id/assign` → `CohortAssignmentService.assign()`
+
+### Flow
+```
+Validate agent_ids (exist + active)
+        │
+Fetch cohort → get member pii_ids
+        │
+Find all leads by pii_ids
+        │
+    Count leads
+    ┌────┴────┐
+  <100       ≥100
+    │          │
+  SYNC      ASYNC (BullMQ)
+    │          │
+    │       Create CAJ-N job doc
+    │       Enqueue to 'cohort-assignment' queue
+    │       Return job_id immediately
+    │          │
+    └────┬─────┘
+         │
+  Fetch agent capacities (get_agent_capacity per agent)
+         │
+  Weighted distribution:
+    agent_share = (agent_capacity / total_capacity) * total_leads
+    Remainder-based rounding for exact total
+         │
+  For each lead → leads_service.assign_lead()
+    (full cascade: close old pipeline, create new, trigger tasks)
+         │
+  Track: assigned_count, failed_count, failures[]
+  Progress: update job doc every 10 leads (async path)
+         │
+  Return result / mark job completed
+```
+
+### Capacity Distribution Example
+```
+100 leads → 3 agents (capacity: 50, 30, 20)
+Total capacity = 100
+Agent A0-1001: 50 leads (50%)
+Agent A0-1002: 30 leads (30%)
+Agent A0-1003: 20 leads (20%)
+→ All agents at equal utilization
+```
+
+### Infrastructure
+- **Queue:** BullMQ (`@nestjs/bullmq`) → Redis
+- **Processor:** `CohortAssignmentProcessor` (in-process NestJS worker)
+- **Job tracking:** MongoDB `cohort_assignment_jobs` collection (persistent, queryable)
+- **Capacity source:** `Agent.daily_capacity` field via `AgentsService.get_agent_capacity()`
+
+### Key Files
+- `src/modules/cohorts/services/cohort-assignment.service.ts` — core logic
+- `src/modules/cohorts/processors/cohort-assignment.processor.ts` — BullMQ worker
+- `src/modules/cohorts/schemas/cohort-assignment-job.schema.ts` — job schema
+- `src/modules/agents/agents.service.ts` — `get_agent_capacity()`

@@ -4,9 +4,9 @@ collection: agents
 id_pattern: A0-XXXX (e.g. A0-1001)
 status: active
 last_updated: 2026-02-21
-tags: [core, auth, assignment]
+tags: [core, auth, assignment, capacity]
 depends_on: []
-referenced_by: [lead, contact, deal, task]
+referenced_by: [lead, contact, deal, task, cohort-assignment-job]
 ---
 
 # Agent
@@ -24,6 +24,7 @@ Sales agents and admin users.
 | user_role | String | USR-1000 to USR-1005 |
 | Agent_Category | String | Acquisition, Retention, Support, Company B2B |
 | AssignedState | String[] | States for round-robin |
+| daily_capacity | Number | Max leads/day, default 50. Used for weighted cohort assignment |
 | status | String | |
 | slack_id | String | |
 | is_active | Boolean | |
@@ -40,3 +41,9 @@ Sales agents and admin users.
 | USR-1003 | Team Manager | No |
 | USR-1004 | Floor Manager | Yes |
 | USR-1005 | Agro | Yes |
+
+## Capacity System
+
+`AgentsService.get_agent_capacity(agent_id)` returns the current capacity for an agent.
+- **Current:** reads `daily_capacity` directly from DB
+- **Future:** will calculate dynamically (e.g. capacity - already_assigned_today)

@@ -23,6 +23,7 @@ NestJS 10 + TypeScript sales CRM backend for Katyayani Organics.
 | [Note](models/note.md) | notes | ObjectId | Standalone notes |
 | [Call](models/call.md) | calls | CALL-N | Call logs |
 | [DraftOrder](models/draft-order.md) | draft_orders | DFT-N | Order drafts |
+| [CohortAssignmentJob](models/cohort-assignment-job.md) | cohort_assignment_jobs | CAJ-N | Async assignment tracking |
 
 ## Workflows
 
@@ -32,7 +33,7 @@ NestJS 10 + TypeScript sales CRM backend for Katyayani Organics.
 | [Pipeline Transitions](workflows/pipeline-transitions.md) | Stage validation + task triggers | `#completed` `#active` |
 | [Task Automation](workflows/task-automation.md) | Pipeline → Task → SLA → Auto-advance | `#completed` `#active` |
 | [Deal & Quotation](workflows/deal-quotation.md) | Deal CRUD + quotation lifecycle | `#completed` `#active` |
-| [Cohort System](workflows/cohort-system.md) | Rule engine + evaluation + assignment | `#wip` `#event-driven` |
+| [Cohort System](workflows/cohort-system.md) | Rule engine + evaluation + bulk assignment | `#active` `#event-driven` `#bullmq` |
 | [Customer Sync](workflows/customer-sync.md) | Inventory-Management → Customer | `#completed` `#webhook` `#cross-project` |
 | [Document Management](workflows/document-management.md) | PII typed_documents → Contact licences | `#completed` `#active` |
 | [SLA Engine](workflows/sla-engine.md) | Business hours + breach detection | `#completed` `#active` |
@@ -43,3 +44,4 @@ NestJS 10 + TypeScript sales CRM backend for Katyayani Organics.
 | Date | What |
 |------|------|
 | 2026-02-21 | Customer module + Cohort system (hybrid rule engine, event-driven evaluation) |
+| 2026-02-21 | Cohort bulk assignment: BullMQ + Redis, capacity-weighted distribution, async job tracking |

@@ -51,4 +51,4 @@ Deep populate response:
 - Contact pipeline takes priority if contact exists
 - Old pipeline CLOSED (not deleted), reason: `owner_changed`
 - New pipeline gets agent's workflow config
-- No bulk assign yet — `#needs-discussion` for cohort assignment
+- Bulk assign available via [Cohort System](cohort-system.md) — capacity-weighted distribution + BullMQ async
