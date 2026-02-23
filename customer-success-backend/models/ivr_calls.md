@@ -11,7 +11,7 @@ IVR call records — covers live calls, hangups, missed, completed. Single table
 | `mobile_number` | text | Customer phone |
 | `customer_name` | text | Customer name (nullable) |
 | `state` | text | Customer state/location |
-| `department` | text | `general`, `retailer`, `app`, `kyc`, `international` |
+| `department` | text | Dynamic — matches `ivr_providers.slug` (e.g. `general`, `retailer`, `manish`) |
 | `status` | text | `waiting`, `ringing`, `active`, `missed`, `hangup`, `completed` |
 | `agent_id` | uuid (FK → agents) | Assigned agent |
 | `agent_name` | text | Denormalized agent name |
@@ -65,3 +65,5 @@ hangup → not_responded (3 failed callback attempts)
 - `agent_id` is UUID type — must match `agents.id`, not string IDs like 'ag-1'
 - Real-time subscriptions via `postgres_changes` on this table power all IVR pages
 - Sidebar counts: live = `waiting + ringing + missed`, hangup = `hangup` status per department
+- **Department is dynamic** — `department` value comes from `ivr_providers.slug`. No hardcoded list. See [ivr_providers](ivr_providers.md) and [Dynamic IVR Providers workflow](../workflows/dynamic_ivr_providers.md)
+- Calls are inserted by the IVR webhook module (`POST /webhooks/ivr/:slug`) which applies field_mapping + status_map from the provider config

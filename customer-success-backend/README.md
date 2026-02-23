@@ -21,7 +21,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 | Email | Gmail | Gmail API + Pub/Sub (push) | `#wip` — code built, GCP setup pending |
 | Chat | Interakt (WhatsApp) | Webhook ingestion + outbound API | `#active` |
 | Chat | Netcore (WhatsApp) | Webhook ingestion + outbound API | `#active` |
-| Calls | IVR | Frontend wired to Supabase `ivr_calls` (real-time) | `#active` |
+| Calls | IVR | Dynamic providers via `ivr_providers` + webhook ingestion | `#active` |
 
 ## Modules — Backend
 
@@ -32,13 +32,16 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 | Email Gateway | `src/emailGateway/` | WebSocket gateway (namespace `/emails`) | `#active` |
 | Chat Ingestion | `src/chatIngestion/` | Multi-provider WhatsApp ingestion + outbound | `#active` `#webhook` |
 | Chat Gateway | `src/chatIngestion/chatGateway.ts` | WebSocket gateway (namespace `/chats`) | `#active` |
+| IVR Webhooks | `src/ivrWebhooks/` | Dynamic IVR provider webhooks — field mapping + status mapping | `#active` `#webhook` |
 
 ## Modules — Frontend (Hooks)
 
 | Hook | Description | Real-time |
 |------|-------------|-----------|
 | `useIVRCalls` | Unified hook for all 7 IVR pages — filter, mutate, subscribe | Yes |
-| `useIVRSidebarCounts` | Sidebar badges: IVR Live/Hangup per dept + SLA breach | Yes |
+| `useIVRProviders` | Dynamic provider registry — CRUD, labels, realtime subscription | Yes |
+| `useCallCategories` | Call categories per department from `call_categories` table | No |
+| `useIVRSidebarCounts` | Sidebar badges: IVR Live/Hangup per dept (dynamic) + SLA breach | Yes |
 | `useLiveChat` | Conversations + messages from Supabase, send reply via backend | Yes |
 | `useChatCounts` | Sidebar badges: Live Chat per channel | Yes |
 | `useEmails` | Email listing with AI summaries | No |
@@ -51,11 +54,13 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 - [support_emails](models/support_emails.md) — monitored mailboxes
 - [emails](models/emails.md) — ingested email messages with AI triage
 - [ivr_calls](models/ivr_calls.md) — IVR call records with SLA tracking
+- [ivr_providers](models/ivr_providers.md) — Dynamic IVR provider registry (webhook config, field mapping)
 
 ## Workflows
 
 - [Gmail Ingestion Flow](workflows/gmail_ingestion.md) — end-to-end email ingestion pipeline
 - [IVR Supabase Wiring](workflows/ivr_supabase_wiring.md) — IVR pages → Supabase data flow
+- [Dynamic IVR Providers](workflows/dynamic_ivr_providers.md) — Provider registration, webhook ingestion, auto-rendering
 
 ## API Overview
 
@@ -78,6 +83,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 | POST | `/chat-templates` | Create template | `#auth-required` |
 | PATCH | `/chat-templates/:id` | Update template | `#auth-required` |
 | DELETE | `/chat-templates/:id` | Delete template | `#auth-required` |
+| POST | `/webhooks/ivr/:slug` | IVR provider webhook (fire-and-forget) | `#public-endpoint` `#webhook` |
 | GET | `/query-assignments` | List assignments | `#auth-required` |
 | POST | `/query-assignments` | Create assignment | `#auth-required` |
 | PATCH | `/query-assignments/:id` | Update assignment | `#auth-required` |
