@@ -11,6 +11,7 @@ Central knowledge base for all backend projects. Documents models, workflows, in
 | [Inventory-Management-Backend](Inventory-Management-Backend/) | Node.js, Express, BullMQ | CRM-Database (MongoDB) | Active |
 | [utilities-go](utilities-go/) | Golang, Gin, GORM | MongoDB + PostgreSQL | Active |
 | [utilities](utilities/) | Node.js, Express, RabbitMQ | CRM-Database (MongoDB) | Active |
+| [customer-success-backend](customer-success-backend/) | NestJS 11, TypeScript, Gemini AI | Supabase (PostgreSQL) | WIP |
 
 ## Structure
 
