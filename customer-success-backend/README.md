@@ -18,7 +18,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 
 | Channel | Platform | Integration | Status |
 |---------|----------|-------------|--------|
-| Email | Gmail | Gmail API + Pub/Sub (push) | `#wip` — code built, GCP setup pending |
+| Email | Gmail | IMAP polling + SMTP reply | `#active` — inbound + outbound working |
 | Chat | Interakt (WhatsApp) | Webhook ingestion + outbound API | `#active` |
 | Chat | Netcore (WhatsApp) | Webhook ingestion + outbound API | `#active` |
 | Calls | IVR | Dynamic providers via `ivr_providers` + webhook ingestion | `#active` |
@@ -28,7 +28,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 | Module | Path | Description | Tags |
 |--------|------|-------------|------|
 | Supabase | `src/supabase/` | Global DB client (service_role) | `#active` |
-| Gmail Ingestion | `src/gmailIngestion/` | Gmail watch, webhook, CRUD, AI triage | `#wip` `#webhook` `#cron` |
+| Gmail Ingestion | `src/gmailIngestion/` | IMAP polling, SMTP reply, CRUD, AI triage | `#active` `#smtp` `#cron` |
 | Email Gateway | `src/emailGateway/` | WebSocket gateway (namespace `/emails`) | `#active` |
 | Chat Ingestion | `src/chatIngestion/` | Multi-provider WhatsApp ingestion + outbound | `#active` `#webhook` |
 | Chat Gateway | `src/chatIngestion/chatGateway.ts` | WebSocket gateway (namespace `/chats`) | `#active` |
@@ -44,7 +44,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 | `useIVRSidebarCounts` | Sidebar badges: IVR Live/Hangup per dept (dynamic) + SLA breach | Yes |
 | `useLiveChat` | Conversations + messages from Supabase, send reply via backend | Yes |
 | `useChatCounts` | Sidebar badges: Live Chat per channel | Yes |
-| `useEmails` | Email listing with AI summaries | No |
+| `useEmails` | Email listing, thread grouping, send reply via backend, AI summaries | Yes |
 | `useQueryAssignments` | CRUD + bulk assign for query assignments | No |
 | `useAgentCalls`, `useAgentChats`, `useAgentHangups`, `useAgentSLABreach`, `useAgentCompleted` | Agent dashboard hooks | Yes |
 | `useAllAgentsLive` | Agent status for department views | Yes |
@@ -59,6 +59,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 ## Workflows
 
 - [Gmail Ingestion Flow](workflows/gmail_ingestion.md) — end-to-end email ingestion pipeline
+- [Email Reply Pipeline](workflows/email_reply_pipeline.md) — SMTP send, DB persist, thread grouping
 - [IVR Supabase Wiring](workflows/ivr_supabase_wiring.md) — IVR pages → Supabase data flow
 - [Dynamic IVR Providers](workflows/dynamic_ivr_providers.md) — Provider registration, webhook ingestion, auto-rendering
 
@@ -75,6 +76,7 @@ Unified omnichannel customer success portal. Consolidates emails, chats, and cal
 | POST | `/support-emails/:id/stop-watch` | Manual watch stop | `#auth-required` |
 | GET | `/emails` | List emails (paginated) | `#auth-required` |
 | GET | `/emails/:id` | Full email + AI summary | `#auth-required` |
+| POST | `/emails/:id/reply` | Send SMTP reply (with CC/BCC) | `#auth-required` `#smtp` |
 | POST | `/webhooks/gmail` | Pub/Sub push endpoint | `#public-endpoint` `#webhook` |
 | POST | `/webhooks/interakt` | Interakt WhatsApp webhook | `#public-endpoint` `#webhook` |
 | POST | `/webhooks/netcore` | Netcore WhatsApp webhook | `#public-endpoint` `#webhook` |
