@@ -231,3 +231,4 @@ Same curl with wrong key → returns 200 (fire-and-forget) but no row inserted. 
 2. **Fire-and-forget**: Webhook always returns 200. Errors are logged server-side only. Debug via backend console or Supabase logs.
 3. **Slug immutability**: Changing a slug would orphan existing `ivr_calls` rows. Slug is disabled in edit mode.
 4. **API key rotation**: Regenerating a key invalidates the old one immediately. IVR platform must be updated.
+5. **Hangup page call categorization**: Category filters in `IVRHangupDepartment.tsx` (lines 74-79) MUST be exhaustive. A call that doesn't match any filter becomes invisible. Fixed 2026-02-23: unassigned calls with attempts > 0 were falling through all filters. Fix: `pendingCalls` now includes all unassigned+unresolved calls regardless of attempt count.
