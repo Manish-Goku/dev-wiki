@@ -42,7 +42,7 @@ auth/                            # JWT auth, signup, role CRUD, module access pe
 dashboard/                       # Order KPIs, pending, NDR, escalated, failed, tracking, agent-details (with call audits + skill scores)
 leads_operation/                 # Lead analytics, batches, clusters, workflows, assignment logs
 leads_management/                # Lead request approval flow (pending→approved→given→fulfilled)
-Inventory/                       # SKU inventory listing (warehouse OID: 674872800a3c153036bc00f0)
+Inventory/                       # Komal API proxy (warehouse inventory, native filters, stats counts)
 agronomy/                        # Call audits (dynamic skills, $lookup audit status, server-side search, stats), tests, question bank, suggestions, skill matrix (precomputed)
 sop/                             # SOP CRUD with Firebase Storage attachments
 Reports_and_Analytics/           # Manager/agent revenue, performance, attendance (Supabase)
@@ -89,6 +89,7 @@ workers/lifecycle.py             # Assignment system lifecycle (start/stop/healt
 | Stockship API | Inventory + order tracking | Both (proxy + direct) |
 | Supabase PostgreSQL | Attendance, profiling tracker | Both |
 | CRM Agronomy API | Tests, question bank | Frontend (auto-login) |
+| Komal API | Warehouse inventory management | Backend proxy (api.komal.ko-tech.in) |
 
 ## Models Index
 | Model | Collection | Doc |
@@ -120,6 +121,7 @@ workers/lifecycle.py             # Assignment system lifecycle (start/stop/healt
 | Agronomy Module | [agronomy-module.md](workflows/agronomy-module.md) |
 | Training Module | [training-module.md](workflows/training-module.md) |
 | Coupon System | [coupon-system.md](workflows/coupon-system.md) |
+| Inventory (Komal API) | [inventory-komal-api.md](workflows/inventory-komal-api.md) |
 
 ## Key Constants
 | Constant | Value | Location |
